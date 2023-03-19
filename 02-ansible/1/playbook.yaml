@@ -1,0 +1,47 @@
+---
+- name: configure slave
+  hosts: slave
+
+  tasks:
+  - name: Install Apache, php, libapache
+    become: true
+    apt:
+      name:
+      - apache2
+      - php
+      - libapache2-mod-php
+      state: present
+
+  - name: create directory
+    become: true
+    file:
+      path=/var/www/php
+      state=directory
+
+  - name: copy files
+    become: true
+    copy:
+      src: /vagrant/index.php
+      dest: /var/www/php/index.php
+  - name: copy files
+    become: true
+    copy:
+      src: /vagrant/index.html
+      dest: /var/www/html/index.html
+  - name: copy files
+    become: true
+    copy:
+      src: /vagrant/000-default.conf
+      dest: /etc/apache2/sites-available/000-default.conf
+  - name: copy files
+    become: true
+    copy:
+      src: /vagrant/ports.conf
+      dest: /etc/apache2/ports.conf
+
+  - name: Restart apache2
+    become: true
+    service:
+      name: apache2
+      state: restarted
+
