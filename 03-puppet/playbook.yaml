@@ -67,23 +67,37 @@
   hosts: master.puppet
 
   tasks:
+  - name: Stop firewalld
+    become: true
+    ansible.builtin.service:
+      name: firewalld
+      state: stopped
+
   - name: Install puppetserver
     become: true
     yum:
       name:
       - puppetserver
+      - git
       state: present
-
-  - name: r10k
-    become: true
-    shell:
-      "/opt/puppetlabs/puppet/bin/gem install r10k"
 
   - name: copy files
     become: true
     copy:
       src: /vagrant/puppetserver
       dest: /etc/sysconfig/puppetserver
+
+  - name: Start service puppetserver
+    become: true
+    ansible.builtin.service:
+      name: puppetserver
+      state: started
+      enabled: yes
+
+  - name: r10k
+    become: true
+    shell:
+      "/opt/puppetlabs/puppet/bin/gem install r10k"
 
   - name: copy file puppet.conf
     become: true
@@ -103,19 +117,12 @@
       src: /vagrant/r10k.yaml
       dest: //etc/puppetlabs/r10k/r10k.yaml
 
-  - name: Start service puppetserver
+  - name: sync at github
     become: true
-    ansible.builtin.service:
-      name: puppetserver
-      state: started
-      enabled: yes
+    shell:
+      "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
 
   - name: deploy at github
     become: true
     shell:
-      "/opt/puppetlabs/puppet/bin/gem install r10k"
-
-  - name: deploy at github
-    become: true
-    shell:
-      "r10k deploy environment -p"
+      "/opt/puppetlabs/puppet/bin/puppet agent -t"
