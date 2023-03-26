@@ -1,0 +1,121 @@
+---
+- name: configure slave1.puppet
+  hosts: slave1.puppet
+
+  tasks:
+  - name: Install puppet-agent
+    become: true
+    yum:
+      name:
+      - puppet-agent
+      state: present
+
+  - name: add a new string
+    become: true
+    lineinfile: 
+      path: /etc/hosts
+      regexp: ''
+      insertafter: EOF
+      line: '192.168.50.10 master.puppet'
+
+  - name: copy file puppet.conf
+    become: true
+    copy:
+      src: /vagrant/puppet.conf
+      dest: /etc/puppetlabs/puppet/puppet.conf 
+
+  - name: Start service puppet-agent
+    become: true
+    ansible.builtin.service:
+      name: puppet.service
+      state: started
+      enabled: yes
+
+- name: configure slave2.puppet
+  hosts: slave2.puppet
+
+  tasks:
+  - name: Install puppet-agent
+    become: true
+    yum:
+      name:
+      - puppet-agent
+      state: present
+
+  - name: add a new string
+    become: true
+    lineinfile: 
+      path: /etc/hosts
+      regexp: ''
+      insertafter: EOF
+      line: '192.168.50.10 master.puppet'
+
+  - name: copy file puppet.conf
+    become: true
+    copy:
+      src: /vagrant/puppet.conf
+      dest: /etc/puppetlabs/puppet/puppet.conf 
+
+  - name: Start service puppet-agent
+    become: true
+    ansible.builtin.service:
+      name: puppet.service
+      state: started
+      enabled: yes
+
+- name: configure master.puppet
+  hosts: master.puppet
+
+  tasks:
+  - name: Install puppetserver
+    become: true
+    yum:
+      name:
+      - puppetserver
+      state: present
+
+  - name: r10k
+    become: true
+    shell:
+      "/opt/puppetlabs/puppet/bin/gem install r10k"
+
+  - name: copy files
+    become: true
+    copy:
+      src: /vagrant/puppetserver
+      dest: /etc/sysconfig/puppetserver
+
+  - name: copy file puppet.conf
+    become: true
+    copy:
+      src: /vagrant/puppet.conf
+      dest: /etc/puppetlabs/puppet/puppet.conf 
+
+  - name: create directory r10k
+    become: true
+    file:
+      path=/etc/puppetlabs/r10k
+      state=directory
+
+  - name: copy r10k.yaml
+    become: true
+    copy:
+      src: /vagrant/r10k.yaml
+      dest: //etc/puppetlabs/r10k/r10k.yaml
+
+  - name: Start service puppetserver
+    become: true
+    ansible.builtin.service:
+      name: puppetserver
+      state: started
+      enabled: yes
+
+  - name: deploy at github
+    become: true
+    shell:
+      "/opt/puppetlabs/puppet/bin/gem install r10k"
+
+  - name: deploy at github
+    become: true
+    shell:
+      "r10k deploy environment -p"

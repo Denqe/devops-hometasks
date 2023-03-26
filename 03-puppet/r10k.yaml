@@ -1,0 +1,5 @@
+:cachedir: '/var/cache/r10k'
+:sources:
+  :my-org:
+    remote: 'https://github.com/Denqe/master-puppet.git'
+    basedir: '/etc/puppetlabs/code/environments'
