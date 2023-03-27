@@ -1,6 +1,6 @@
 ---
-- name: configure slave1.puppet
-  hosts: slave1.puppet
+- name: configure slave1.puppet, slave2.puppet
+  hosts: slave1.puppet, slave2.puppet
 
   tasks:
   - name: Install puppet-agent
@@ -10,39 +10,7 @@
       - puppet-agent
       state: present
 
-  - name: add a new string
-    become: true
-    lineinfile: 
-      path: /etc/hosts
-      regexp: ''
-      insertafter: EOF
-      line: '192.168.50.10 master.puppet'
-
-  - name: copy file puppet.conf
-    become: true
-    copy:
-      src: /vagrant/puppet.conf
-      dest: /etc/puppetlabs/puppet/puppet.conf 
-
-  - name: Start service puppet-agent
-    become: true
-    ansible.builtin.service:
-      name: puppet.service
-      state: started
-      enabled: yes
-
-- name: configure slave2.puppet
-  hosts: slave2.puppet
-
-  tasks:
-  - name: Install puppet-agent
-    become: true
-    yum:
-      name:
-      - puppet-agent
-      state: present
-
-  - name: add a new string
+  - name: add a new string to hosts
     become: true
     lineinfile: 
       path: /etc/hosts
@@ -87,13 +55,6 @@
       src: /vagrant/puppetserver
       dest: /etc/sysconfig/puppetserver
 
-  - name: Start service puppetserver
-    become: true
-    ansible.builtin.service:
-      name: puppetserver
-      state: started
-      enabled: yes
-
   - name: r10k
     become: true
     shell:
@@ -115,14 +76,34 @@
     become: true
     copy:
       src: /vagrant/r10k.yaml
-      dest: //etc/puppetlabs/r10k/r10k.yaml
+      dest: /etc/puppetlabs/r10k/r10k.yaml
+
+  - name: copy autosign file
+    become: true
+    copy:
+      src: /vagrant/autosign.conf
+      dest: /etc/puppetlabs/puppet/autosign.conf
+
+  - name: Start service puppetserver
+    become: true
+    ansible.builtin.service:
+      name: puppetserver.service
+      state: started
+      enabled: yes
 
   - name: sync at github
     become: true
     shell:
       "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
 
-  - name: deploy at github
+  - name: delegate slave1.puppet sync with master.puppet
     become: true
     shell:
       "/opt/puppetlabs/puppet/bin/puppet agent -t"
+    delegate_to: slave1.puppet
+
+  - name: delegate slave2.puppet sync with master.puppet
+    become: true
+    shell:
+      "/opt/puppetlabs/puppet/bin/puppet agent -t"
+    delegate_to: slave2.puppet  
