@@ -1,6 +1,6 @@
 ---
-- name: configure slave1.puppet, slave2.puppet
-  hosts: slave1.puppet, slave2.puppet
+- name: configure slave1.puppet, slave2.puppet, mineserver.puppet
+  hosts: slave1.puppet, slave2.puppet, mineserver.puppet
 
   tasks:
   - name: add repository pappet
@@ -45,6 +45,24 @@
     ansible.builtin.service:
       name: firewalld
       state: stopped
+
+  - name: add hosts slave1.puppet
+    become: true
+    lineinfile:
+      path: /etc/hosts
+      line: '192.168.50.11 slave1.puppet'
+
+  - name: add hosts slave2.puppet
+    become: true
+    lineinfile:
+      path: /etc/hosts
+      line: '192.168.50.12 slave2.puppet'
+
+  - name: add hosts minecraft.puppet
+    become: true
+    lineinfile:
+      path: /etc/hosts
+      line: '192.168.50.13 mineserver.puppet'   
 
   - name: add repository pappet
     become: true
@@ -106,14 +124,19 @@
     shell:
       "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
 
-  - name: delegate slave1.puppet sync with master.puppet
-    become: true
-    shell:
-      "/opt/puppetlabs/puppet/bin/puppet agent -t"
-    delegate_to: slave1.puppet
+ # - name: delegate slave1.puppet sync with master.puppet
+ #   become: true
+ #   shell:
+ #     "/opt/puppetlabs/puppet/bin/puppet agent -t"
+ #   delegate_to: slave1.puppet
 
-  - name: delegate slave2.puppet sync with master.puppet
-    become: true
-    shell:
-      "/opt/puppetlabs/puppet/bin/puppet agent -t"
-    delegate_to: slave2.puppet  
+ # - name: delegate slave2.puppet sync with master.puppet
+ #   become: true
+ #   shell:
+ #     "/opt/puppetlabs/puppet/bin/puppet agent -t"
+ #   delegate_to: slave2.puppet
+
+  #- name: sync with master.puppet
+  #  become: true
+  #  shell:
+  #    "/opt/puppetlabs/puppet/bin/puppet agent -t"  
