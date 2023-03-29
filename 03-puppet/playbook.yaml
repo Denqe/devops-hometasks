@@ -3,6 +3,11 @@
   hosts: slave1.puppet, slave2.puppet
 
   tasks:
+  - name: add repository pappet
+    become: true
+    shell:
+      "yum install -y https://yum.puppet.com/puppet7-release-el-8.noarch.rpm"
+
   - name: Install puppet-agent
     become: true
     yum:
@@ -40,6 +45,11 @@
     ansible.builtin.service:
       name: firewalld
       state: stopped
+
+  - name: add repository pappet
+    become: true
+    shell:
+      "yum install -y https://yum.puppet.com/puppet7-release-el-8.noarch.rpm"
 
   - name: Install puppetserver
     become: true

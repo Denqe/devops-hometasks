@@ -7,6 +7,9 @@
 [slave2.puppet]
 192.168.50.12
 
+[mineserver.puppet]
+192.168.50.13
+
 [all:vars]
 ansible_connection=ssh
 ansible_user=vagrant
