@@ -136,7 +136,7 @@
  #     "/opt/puppetlabs/puppet/bin/puppet agent -t"
  #   delegate_to: slave2.puppet
 
-  #- name: sync with master.puppet
-  #  become: true
-  #  shell:
-  #    "/opt/puppetlabs/puppet/bin/puppet agent -t"  
+  - name: sync with master.puppet
+    become: true
+    shell:
+      "/opt/puppetlabs/puppet/bin/puppet agent -t"  
