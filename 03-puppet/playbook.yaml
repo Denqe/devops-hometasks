@@ -124,18 +124,6 @@
     shell:
       "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
 
- # - name: delegate slave1.puppet sync with master.puppet
- #   become: true
- #   shell:
- #     "/opt/puppetlabs/puppet/bin/puppet agent -t"
- #   delegate_to: slave1.puppet
-
- # - name: delegate slave2.puppet sync with master.puppet
- #   become: true
- #   shell:
- #     "/opt/puppetlabs/puppet/bin/puppet agent -t"
- #   delegate_to: slave2.puppet
-
   - name: sync with master.puppet
     become: true
     shell:
