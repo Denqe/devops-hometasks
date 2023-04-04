@@ -1,0 +1,5 @@
+---
+- name: configure jenkins.vm
+  hosts: jenkins.vm
+  roles:
+  - jenkins
