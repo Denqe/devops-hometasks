@@ -1,6 +1,4 @@
 ---
-
-- include: install.yaml
-
-- name: Ensure Jenkins is started and runs on startup.
-  service: name=jenkins state=started enabled=yes
+- include_tasks: install.yaml
+- include_tasks: configure_user.yaml
+- include_tasks: add_plugins.yaml

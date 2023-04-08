@@ -1,50 +1,33 @@
 ---
 - name: Ensure dependencies are installed.
-  apt:
+  become: true
+  ansible.builtin.apt:
     name:
       - curl
       - apt-transport-https
       - gnupg
       - build-essential
       - default-jre
+      - git
     state: present
+    update_cache: yes
 
-- name: Add Jenkins apt repository key.
-  ansible.builtin.get_url:
-    url: "{{ jenkins_repo_key_url }}"
-    dest: /etc/apt/trusted.gpg.d/jenkins.asc
-    mode: '0644'
-    force: true
+- name: add repository
+  become: true
+  shell:
+    "curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+    /usr/share/keyrings/jenkins-keyring.asc > /dev/null"
 
-- name: Add Jenkins apt repository.
-  apt_repository:
-    repo: "{{ jenkins_repo_url }}"
-    state: present
-    update_cache: true
-  when: jenkins_repo_url | default(false)
-  tags: ['skip_ansible_lint']
+- name: add repository
+  become: true
+  shell:
+    "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null"
 
-- name: Download specific Jenkins version.
-  get_url:
-    url: "{{ jenkins_pkg_url }}/jenkins_{{ jenkins_version }}_all.deb"
-    dest: "/tmp/jenkins_{{ jenkins_version }}_all.deb"
-  when: jenkins_version is defined
-
-- name: Check if we downloaded a specific version of Jenkins.
-  stat:
-    path: "/tmp/jenkins_{{ jenkins_version }}_all.deb"
-  register: specific_version
-  when: jenkins_version is defined
-
-- name: Install our specific version of Jenkins.
-  apt:
-    deb: "/tmp/jenkins_{{ jenkins_version }}_all.deb"
-    state: present
-  when: jenkins_version is defined and specific_version.stat.exists
-  notify: configure default users
-
-- name: Ensure Jenkins is installed.
-  apt:
+- name: Update the repository cache and install jenkins
+  become: true
+  ansible.builtin.apt:
     name: jenkins
-    state: "{{ jenkins_package_state }}"
-  notify: configure default users
+    state: present
+    update_cache: yes

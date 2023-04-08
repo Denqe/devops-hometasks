@@ -1,0 +1,30 @@
+---
+
+#- name: test
+#  become: true
+ # shell: 
+ #   ansible-galaxy collection install community.general
+
+- name: Install plugin
+  become: true
+  community.general.jenkins_plugin:
+    name: configuration-as-code
+    url_username: admin
+    url_password: admin
+    url: http://192.168.50.10:8080
+
+- name: copy file in /var/lib/jenkins/
+  become: true
+  copy:
+    src: jenkins.yaml
+    dest: /var/lib/jenkins/jenkins.yaml
+    owner: jenkins
+    group: jenkins
+    mode: '0644'
+
+- name: restart Jenkins
+  become: true
+  systemd:
+    name: jenkins
+    state: restarted
+    daemon_reload: true
