@@ -9,6 +9,7 @@
       - build-essential
       - default-jre
       - git
+      - jq
     state: present
     update_cache: yes
 
