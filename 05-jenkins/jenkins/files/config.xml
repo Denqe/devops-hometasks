@@ -86,8 +86,7 @@ ls -l artifacts/</command>
       <siteName>vagrant@${STAGING_IP}:22</siteName>
       <command>sudo systemctl stop wordcloud
 
-curl -X GET http://${NEXUS_IP}:8081/repository/word-cloud-build/${BRANCH}/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz
-${NEXUS_USER}:${NEXUS_PASSWORD}
+curl -X GET http://${NEXUS_IP}:8081/repository/word-cloud-build/${BRANCH}/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz --user ${NEXUS_USER}:${NEXUS_PASSWORD}
 ls -l /opt/wordcloud
 gunzip -f /opt/wordcloud/word-cloud-generator.gz
 chmod +x /opt/wordcloud/word-cloud-generator
@@ -112,8 +111,7 @@ fi</command>
       <siteName>vagrant@${PRODUCTION_IP}:22</siteName>
       <command>sudo systemctl stop wordcloud
 
-curl -X GET http://${NEXUS_IP}:8081/repository/word-cloud-build/${BRANCH}/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz
-${NEXUS_USER}:${NEXUS_PASSWORD}
+curl -X GET http://${NEXUS_IP}:8081/repository/word-cloud-build/${BRANCH}/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz --user ${NEXUS_USER}:${NEXUS_PASSWORD}
 ls -l /opt/wordcloud
 gunzip -f /opt/wordcloud/word-cloud-generator.gz
 chmod +x /opt/wordcloud/word-cloud-generator

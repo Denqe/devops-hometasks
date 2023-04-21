@@ -15,16 +15,16 @@
 
 - name: add repository
   become: true
-  shell:
-    "curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
-    /usr/share/keyrings/jenkins-keyring.asc > /dev/null"
+  apt_key:
+    url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+    state: present
 
 - name: add repository
   become: true
-  shell:
-    "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-    /etc/apt/sources.list.d/jenkins.list > /dev/null"
+  apt_repository:
+    repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    update_cache: true
 
 - name: Update the repository cache and install jenkins
   become: true
