@@ -1,0 +1,11 @@
+---
+  
+- name: Install jenkins
+  hosts: localhost
+  become: true
+
+  tasks:
+
+  - name: Install jenkins
+    include_role:
+      name: jenkins

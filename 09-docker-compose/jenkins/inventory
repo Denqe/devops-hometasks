@@ -1,0 +1,25 @@
+jenkins     ansible_host=127.0.0.1 ansible_connection=local
+
+#[localhost]
+#127.0.0.1
+
+#[master]
+#192.168.50.11
+
+#[nexus.vm]
+#192.168.50.14
+
+#[production.vm]
+#192.168.50.13
+
+#[staging.vm]
+#192.168.50.12
+
+#[jenkins.vm]
+#192.168.50.10
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_password=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
