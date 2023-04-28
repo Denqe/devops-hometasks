@@ -1,0 +1,13 @@
+name: test ci
+
+on:
+  push:
+  workflow_dispatch:
+  
+jobs:
+  test:
+    runs-on: ubuntu:focal
+    
+    steps:
+    - name: test-step
+      run: echo "hello from workflow"
