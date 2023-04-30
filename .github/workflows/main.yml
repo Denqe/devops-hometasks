@@ -11,9 +11,6 @@ jobs:
       image: golang:1.16
     
     steps:
-    - name: test-step
-      run: echo "hello from workflow"
-    
     - name: checkout repo
       uses: actions/checkout@v3
       with:
