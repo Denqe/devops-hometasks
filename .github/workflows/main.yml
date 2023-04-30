@@ -1,4 +1,4 @@
-name: test ci
+name: hometask-10
 
 on:
   push:
@@ -7,7 +7,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-20.04
+    container:
+      image: golang:1.16
     
     steps:
     - name: test-step
       run: echo "hello from workflow"
+    
+    - name: checkout repo
+      uses: actions/checkout@v3
+      with:
+        repository: Denqe/word-cloud-generator
+        
+    - name: build wcg
+      run: |
+        make
+        ls -l
+        ls -l artifacts
