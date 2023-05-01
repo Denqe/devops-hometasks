@@ -1,0 +1,94 @@
+pipeline {
+    agent any
+    tools {
+        go 'Go 1.16'
+    }
+    options {
+        timestamps()
+    }
+    stages{
+        stage('Downloading sources from Git') { 
+            steps {
+				git 'https://github.com/wickett/word-cloud-generator.git'
+			}
+        }
+        stage ('Test'){
+            steps{
+                sh '''export GOPATH=$WORKSPACE/go
+                      export PATH="$PATH:$(go env GOPATH)/bin"
+                      sed -i "s/1.DEVELOPMENT/1.$BUILD_NUMBER/g" static/version
+                      go get github.com/smartystreets/goconvey
+                      make lint
+                      make test
+                '''                
+            }
+        }
+        stage ('Build code'){
+            steps{
+                sh '''export GOPATH=$WORKSPACE/go
+                      export PATH="$PATH:$(go env GOPATH)/bin"
+                      sed -i "s/1.DEVELOPMENT/1.$BUILD_NUMBER/g" static/version
+                      GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v .
+                      gzip artifacts/word-cloud-generator
+                      mv artifacts/word-cloud-generator.gz artifacts/word-cloud-generator
+                      ls -l artifacts/'''
+            }
+        }
+        stage ('Nexus upload'){
+            steps{
+               nexusArtifactUploader artifacts: [[artifactId: 'word-cloud-generator', classifier: '', file: 'artifacts/word-cloud-generator', type: 'gz']], credentialsId: 'nexus-creds', groupId: "jenkinsfile-build", nexusUrl: '192.168.33.91:8081/', nexusVersion: 'nexus3', protocol: 'http', repository: 'word-cloud-build', version: '1.$BUILD_NUMBER'
+            }
+        }
+       	stage('Deploying app on staging') { 
+       	    steps {
+       	        withCredentials([usernamePassword(credentialsId: 'vagrant-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh ''' sshpass -p $PASSWORD ssh -o StrictHostKeyChecking=no $USERNAME@192.168.33.81 "sudo systemctl stop wordcloud"
+                           sshpass -p $PASSWORD ssh $USERNAME@192.168.33.81 "curl -X GET -u admin:admin http://192.168.33.91:8081/repository/word-cloud-build/jenkinsfile-build/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz"
+                           sshpass -p $PASSWORD ssh $USERNAME@192.168.33.81 "gunzip -f /opt/wordcloud/word-cloud-generator.gz"
+                           sshpass -p $PASSWORD ssh $USERNAME@192.168.33.81 "chmod +x /opt/wordcloud/word-cloud-generator"
+                           sshpass -p $PASSWORD ssh $USERNAME@192.168.33.81 "sudo systemctl start wordcloud"
+                    '''
+       	        }
+            }
+       	}
+    	stage('Running some integration tests'){
+			parallel {
+				stage('Runnning 1st integration test in parallel') {
+					steps {
+						sh  ''' res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://192.168.33.81:8888/version | jq '. | length'`
+                                if [ "1" != "$res" ]; then
+                                    exit 99
+                                fi
+                            '''
+					}
+				}
+				stage('Runnning 2nd integration test in parallel') {
+					steps {
+						sh  ''' res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://192.168.33.81:8888/api | jq '. | length'`
+                                if [ "7" != "$res" ]; then
+                                    exit 99
+                                fi
+                            '''
+					}
+				}
+			}
+		}
+		stage('Deploying app on production'){
+			steps{
+				script{
+					def remote = [:]
+					remote.name = 'production'
+					remote.host = '192.168.33.86'
+					remote.user = 'vagrant'
+					remote.password = 'vagrant'
+					remote.allowAnyHosts = true
+					sshCommand remote: remote, command: "sudo systemctl stop wordcloud"
+					sshCommand remote: remote, command: "curl -X GET -u admin:admin http://192.168.33.91:8081/repository/word-cloud-build/jenkinsfile-build/word-cloud-generator/1.${BUILD_NUMBER}/word-cloud-generator-1.${BUILD_NUMBER}.gz -o /opt/wordcloud/word-cloud-generator.gz"
+					sshCommand remote: remote, command: "gunzip -f /opt/wordcloud/word-cloud-generator.gz"
+					sshCommand remote: remote, command: "chmod +x /opt/wordcloud/word-cloud-generator"
+					sshCommand remote: remote, command: "sudo systemctl start wordcloud"
+				}  
+			}
+		}
+	}
+}
