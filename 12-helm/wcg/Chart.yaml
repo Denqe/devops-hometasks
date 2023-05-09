@@ -1,0 +1,5 @@
+apiVersion: v2
+name: denqe-wcg
+version: 7.7.7
+appVersion: '1.0'
+description: denqe-wcg for hometask12

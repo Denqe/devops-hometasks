@@ -1,0 +1,22 @@
+replicas: 1
+service:
+  port: 8888
+  name: wcg
+  protocol: TCP
+
+container:
+  port: 8888
+  portName: http
+  label: wcg
+  name: wcg
+
+image:
+  repository: ghcr.io/denqe/wcg:631c41a88442c790a79efd0d9913695cd8dd9b19
+  name: github-pull-secret
+  imagePullPolicy: Always
+  resources: {}
+
+ingress:
+  host: wcg.local.com
+  path: /svc
+  pathType: Prefix 
