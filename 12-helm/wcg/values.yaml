@@ -18,5 +18,5 @@ image:
 
 ingress:
   host: wcg.local.com
-  path: /svc
+  path: /
   pathType: Prefix 
