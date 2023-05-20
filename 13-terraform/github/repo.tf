@@ -1,7 +1,7 @@
-resource "github_repository_file" "den1" {
+resource "github_repository_file" "file" {
 
-  for_each = fileset("${path.module}/../","*.tf")
-  repository          = "devops-hometask"
+  for_each            = fileset("${path.module}/../", "*.tf")
+  repository          = "devops-hometasks"
   branch              = "master"
   file                = "13-terraform/${each.value}"
   content             = file("${path.module}/../${each.value}")
@@ -9,10 +9,10 @@ resource "github_repository_file" "den1" {
   commit_message      = "by Denqe"
 }
 
-resource "github_repository_file" "den2" {
+resource "github_repository_file" "file1" {
 
-  for_each = fileset("${path.module}/../","*.tfvars")
-  repository          = "devops-hometask"
+  for_each            = fileset("${path.module}/../", "*.tfvars")
+  repository          = "devops-hometasks"
   branch              = "master"
   file                = "13-terraform/${each.value}"
   content             = file("${path.module}/../${each.value}")
@@ -20,10 +20,10 @@ resource "github_repository_file" "den2" {
   commit_message      = "by Denqe"
 }
 
-resource "github_repository_file" "den3" {
+resource "github_repository_file" "git_file" {
 
-  for_each = fileset("${path.module}/../github","*.tf")
-  repository          = "devops-hometask"
+  for_each            = fileset("${path.module}/../github", "*.tf")
+  repository          = "devops-hometasks"
   branch              = "master"
   file                = "13-terraform/github/${each.value}"
   content             = file("${path.module}/../github/${each.value}")
