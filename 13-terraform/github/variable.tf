@@ -1,1 +1,1 @@
-variable "GITHUB_ACTION" {}
+variable "GITHUB_token" {}
