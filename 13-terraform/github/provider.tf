@@ -8,5 +8,5 @@ terraform {
 }
 
 provider "github" {
-  # Configuration options
+  token = var.tf_token
 }

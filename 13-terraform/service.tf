@@ -1,15 +1,14 @@
 resource "kubernetes_service_v1" "wcg-service" {
   metadata {
-    name      = var.name
+    name      = var.service_name
   }
   spec {
     selector = {
       app = var.app_name
     }
     port {
-      protocol = var.protocol
-      port = var.number_of_port
-      targetPort = var.number_of_target_port
+      port = var.svc_number_of_port
+      target_port = var.svc_number_of_target_port
     }
   }
 }

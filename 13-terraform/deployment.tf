@@ -16,12 +16,12 @@ resource "kubernetes_deployment_v1" "wcg-deploy" {
         }
       }
       spec {
-        image_pull_secrets {
-          name = var.secrets_name
-        }
+        #image_pull_secrets {
+        #  name = var.secrets_name
+        #}
         container {
-          image             = var.image_name
-          name              = var.name
+          image = var.image_name
+          name = var.name
         }
       }
     }

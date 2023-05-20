@@ -11,12 +11,12 @@ resource "kubernetes_ingress_v1" "wcg-ingress" {
       http {
         path {
           path = var.path
-          pathType = var.pathType
+          path_type = var.path_type
           backend {
             service {
               name = var.service_name
               port {
-                number = var.number_of_port
+                number = var.svc_number_of_port
               }
             }
           }
