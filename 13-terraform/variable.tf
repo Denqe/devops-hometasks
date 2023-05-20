@@ -2,8 +2,6 @@ variable "name" {}
 
 variable "app_name" {}
 
-variable "protocol" {}
-
 variable "svc_number_of_port" {}
 
 variable "svc_number_of_target_port" {}
