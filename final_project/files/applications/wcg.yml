@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wcg
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    name: ''
+    namespace: default
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://denqe.github.io/devops-hometasks/'
+    targetRevision: 3.0.0
+    chart: denqe-wcg
+  sources: []
+  project: development
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: []

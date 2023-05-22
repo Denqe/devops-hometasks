@@ -11,7 +11,7 @@ container:
   name: wcg
 
 image:
-  repository: ghcr.io/denqe/wcg:631c41a88442c790a79efd0d9913695cd8dd9b19
+  repository: ghcr.io/denqe/wcg
   name: github-pull-secret
   imagePullPolicy: Always
   resources: {}
