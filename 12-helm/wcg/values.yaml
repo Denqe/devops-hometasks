@@ -15,6 +15,7 @@ image:
   name: github-pull-secret
   imagePullPolicy: Always
   resources: {}
+  tag: ""
 
 ingress:
   host: wcg.local.com
