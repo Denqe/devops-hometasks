@@ -1,9 +1,10 @@
 name: denqe_wcg_final_project
 on:
   push:
-    branches: -master
-    tags-ignore:
-      - v*
+    branches:
+      - master
+    tags:
+      - '*'
   workflow_dispatch:
   
 jobs:
