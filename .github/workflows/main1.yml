@@ -7,6 +7,9 @@ on:
       - v*
   workflow_dispatch:
   
+env:
+  OWNER: '${{ github.repository_owner }}'
+  
 jobs:
   build_docker_wcg:
     runs-on: ubuntu-20.04
@@ -33,13 +36,12 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.ACTION_TOKEN }}
-    - name: build WCG
+    - name: build WCG 
       run: |
-        repository_owner=${{ github.repository_owner }}
-        repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.tag.outputs.new_tag }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ steps.tag.outputs.new_tag }}
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        docker build -t ghcr.io/${{ env.OWNER_LC }}/wcg:${{ steps.tag.outputs.new_tag }} -t  ghcr.io/${{ env.OWNER_LC }}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${OWNER_LC}/wcg:${{ steps.tag.outputs.new_tag }}
+        docker push ghcr.io/${OWNER_LC}/wcg:latest
         
 
   lint-test:
