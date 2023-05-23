@@ -39,8 +39,8 @@ jobs:
     - name: build WCG 
       run: |
         echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
-        docker build -t ghcr.io/${{ env.OWNER_LC }}/wcg:${{ steps.tag.outputs.new_tag }} -t  ghcr.io/${{ env.OWNER_LC }}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${OWNER_LC}/wcg:${{ steps.tag.outputs.new_tag }}
+        docker build -t ghcr.io/${{ env.OWNER_LC }}/wcg:${{ github.sha }} -t ghcr.io/${{ env.OWNER_LC }}/wcg:latest -f ./07-docker/Dockerfile.multi .
+        docker push ghcr.io/${OWNER_LC}/wcg:${{ github.sha }}
         docker push ghcr.io/${OWNER_LC}/wcg:latest
         
 
