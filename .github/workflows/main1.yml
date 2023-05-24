@@ -10,7 +10,6 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-20.04
-    
     permissions:
       contents: write
     steps:
@@ -18,14 +17,14 @@ jobs:
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }} # if you don't want to set write permissions use a PAT token
           REPO_OWNER: ${{ github.repository_owner }}
       - name: tag
         id: tag
         uses: anothrNick/github-tag-action@master # if we use 1 there is a too-be-fixed bug https://github.com/anothrNick/github-tag-action/actions/runs/3139501775/jobs/5099976842#step:1:35 as alternative we could use v1
         env:
           VERBOSE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
     outputs: 
       tag: ${{ steps.tag.outputs.tag }}"
       
