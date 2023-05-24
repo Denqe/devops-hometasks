@@ -1,31 +1,26 @@
-name: denqe_wcg_final_project
+name: final-11
 on:
   push:
     branches:
       - master
     tags-ignore:
-      - v*
+      - '*'
   workflow_dispatch:
   
 jobs:
-  build_docker_wcg:
+  build-docker:
     runs-on: ubuntu-20.04
-    
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v3
-      with:
-        #ref: ${{ github.sha }}
-        fetch-depth: '0'
-
+    - uses: actions/checkout@master
     - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.64.0
+      uses: anothrNick/github-tag-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
-        WITH_V: true
-        #PRERELEASE: true
-    
+        REPO_OWNER: ${{ github.repository_owner }}
+
+
     - uses: actions/checkout@v3.3.0
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v2.1.0
@@ -33,6 +28,7 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.ACTION_TOKEN }}
+    
     - name: build WCG
       run: |
         repository_owner=${{ github.repository_owner }}
@@ -41,8 +37,8 @@ jobs:
         docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
         docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
         
-
   lint-test:
+    needs: [build-docker]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -70,7 +66,6 @@ jobs:
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }}
@@ -84,6 +79,7 @@ jobs:
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
 
   chart-releaser:
+    needs: [build-docker, lint-test]
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -96,27 +92,32 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"  
       - name: Install Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v3
         with:
-          version: v3.8.1
+          version: v3.11.2
       # Optional step if GPG signing is used
-      - name: Prepare GPG key
-        run: |
-          gpg_dir=.cr-gpg
-          mkdir "$gpg_dir"
-          keyring="$gpg_dir/secring.gpg"
-          base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring"
-          passphrase_file="$gpg_dir/passphrase"
-          echo "$GPG_PASSPHRASE" > "$passphrase_file"
-          echo "CR_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
-          echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
-        env:
-          GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}"
-          GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
+      # - name: Prepare GPG key
+      #   run: |
+      #     gpg_dir=.cr-gpg
+      #     mkdir "$gpg_dir"
+      #     keyring="$gpg_dir/secring.gpg"
+      #     base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring"
+      #     passphrase_file="$gpg_dir/passphrase"
+      #     echo "$GPG_PASSPHRASE" > "$passphrase_file"
+      #     echo "CR_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
+      #     echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
+      #   env:
+      #     GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}"
+      #     GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
 
       - name: Add dependency chart repos
-        run: |
-          helm repo add  https://denqe.github.io/devops-hometasks/
+        uses: flydiverny/helm-package-action@master
+        with:
+          version: v0.1.0
+                      
+        # run: |
+        #   helm package 12-helm/wcg --app-version ${{ github.tag }} --version ${{ github.tag }} -d  final
+        #   helm repo index --url  https://stanisz1.github.io/devops-hometasks/ .
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
