@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  bump-version:
+  bump:
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -29,7 +29,7 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}"
       
   build_docker_wcg:
-    needs: [bump-version]
+    needs: [bump]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3.3.0
@@ -43,12 +43,12 @@ jobs:
         run: |
           repository_owner=${{ github.repository_owner }}
           repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}  -f /07-docker/Dockerfile.multi .
+          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump.outputs.tag }}  -f ./07-docker/Dockerfile.multi .
           docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} 
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}
+          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump.outputs.tag }}
         
   lint-test:
-    needs: [bump-version, build_docker_wcg]
+    needs: [bump, build_docker_wcg]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -90,7 +90,7 @@ jobs:
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
 
   chart-releaser:
-    needs: [bump-version, build_docker_wcg, lint-test]
+    needs: [bump, build_docker_wcg, lint-test]
     runs-on: ubuntu-20.04
     permissions:
       contents: write
