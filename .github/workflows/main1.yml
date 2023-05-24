@@ -8,42 +8,49 @@ on:
   workflow_dispatch:
   
 jobs:
-  build_docker_wcg:
+  bump-version:
     runs-on: ubuntu-20.04
     
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v3
-      with:
-        #ref: ${{ github.sha }}
-        fetch-depth: '0'
-
-    - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.64.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
-        WITH_V: true
-        #PRERELEASE: true
-    
-    - uses: actions/checkout@v3.3.0
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v2.1.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.ACTION_TOKEN }}
-    - name: build WCG
-      run: |
-        repository_owner=${{ github.repository_owner }}
-        repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t ghcr.io/${repository_owner_lowercase}/wcg:latest -f ./07-docker/Dockerfile.multi .
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
-        docker push ghcr.io/${repository_owner_lowercase}/wcg:latest
+      - uses: actions/checkout@v3
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          REPO_OWNER: ${{ github.repository_owner }}
+      - name: tag
+        id: tag
+        uses: anothrNick/github-tag-action@master # if we use 1 there is a too-be-fixed bug https://github.com/anothrNick/github-tag-action/actions/runs/3139501775/jobs/5099976842#step:1:35 as alternative we could use v1
+        env:
+          VERBOSE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs: 
+      tag: ${{ steps.tag.outputs.tag }}"
+      
+  build_docker_wcg:
+    needs: [bump-version]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+      - uses: actions/checkout@v3.3.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACTION_TOKEN }}
+      - name: build WCG
+        run: |
+          repository_owner=${{ github.repository_owner }}
+          repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} -t  ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}  -f ./07-docker/Dockerfile.multi .
+          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} 
+          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.bump-version.outputs.tag }}
         
-
   lint-test:
-    needs: [build_docker_wcg]
+    needs: [bump-version, build_docker_wcg]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -85,7 +92,7 @@ jobs:
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
 
   chart-releaser:
-    needs: [build_docker_wcg, lint-test]
+    needs: [bump-version, build_docker_wcg, lint-test]
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -104,7 +111,7 @@ jobs:
 
       - name: Add dependency chart repos
         run: | 
-            git config user.name "$GITHUB_ACTOR"
+            git config user.name "$github_actor"
             helm package 12-helm/wcg --app-version "$steps.tag_version.outputs.new_tag" --version "$steps.tag_version.outputs.new_tag" -d charts/
             helm repo index --url https://denqe.github.io/devops-hometasks/
             git add .
