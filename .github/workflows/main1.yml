@@ -110,9 +110,9 @@ jobs:
           version: v3.8.1
 
       - name: Add dependency chart repos
-        run: | 
+        run: |
             git config user.name "$github_actor"
-            helm package 12-helm/wcg --app-version ${{ needs.bump.outputs.tag }} --version ${{ needs.bump.outputs.tag }} -d charts/
+            helm package 12-helm/wcg --app-version ${{ github.sha }} --version ${{ github.sha }} -d charts/
             helm repo index --url https://denqe.github.io/devops-hometasks/
             git add .
             git commit -m "Update Helm repository with new package"
