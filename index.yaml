@@ -3,7 +3,7 @@ entries:
   denqe-wcg:
   - apiVersion: v2
     appVersion: --version
-    created: "2023-05-25T16:25:15.316537027Z"
+    created: "2023-05-25T16:46:45.03299694Z"
     description: denqe-wcg for hometask12
     digest: 7e907fd20200335cefe4810cb230acfcf48a00916fbaa89a332f185a01b715e5
     name: denqe-wcg
@@ -12,7 +12,7 @@ entries:
     version: 7.7.7
   - apiVersion: v2
     appVersion: "2.5"
-    created: "2023-05-25T16:25:15.316193319Z"
+    created: "2023-05-25T16:46:45.032427236Z"
     description: denqe-wcg for hometask12
     digest: 97968bf40ac82ee4dc2e58d6ec3c7119d84592ea25d6d3048e75ab04a2cf0bd4
     name: denqe-wcg
@@ -21,7 +21,7 @@ entries:
     version: 4.0.0
   - apiVersion: v2
     appVersion: "2.2"
-    created: "2023-05-25T16:25:15.315940313Z"
+    created: "2023-05-25T16:46:45.032139034Z"
     description: denqe-wcg for hometask12
     digest: 454cb918777f0f12b0351156f6426fc13b7c0c365ef06be2fe07eb28081a797d
     name: denqe-wcg
@@ -30,11 +30,20 @@ entries:
     version: 3.0.0
   - apiVersion: v2
     appVersion: "10.0"
-    created: "2023-05-25T16:25:15.315618706Z"
+    created: "2023-05-25T16:46:45.031837632Z"
     description: denqe-wcg for hometask12
     digest: 6d1d877167df192c3c8fa7d9b7e1b3e3b7abd23566ea40134ddf525360b6c116
     name: denqe-wcg
     urls:
     - https://denqe.github.io/devops-hometasks/charts/denqe-wcg-1.0.0.tgz
     version: 1.0.0
-generated: "2023-05-25T16:25:15.315159595Z"
+  - apiVersion: v2
+    appVersion: --version
+    created: "2023-05-25T16:46:45.03151363Z"
+    description: denqe-wcg for hometask12
+    digest: db9898c96506ea3fdd7334e85efdc8405171b905be008464316eb1d0f719400e
+    name: denqe-wcg
+    urls:
+    - https://denqe.github.io/devops-hometasks/charts/denqe-wcg-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-05-25T16:46:45.030374422Z"
