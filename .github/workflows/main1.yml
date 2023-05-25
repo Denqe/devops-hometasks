@@ -109,33 +109,14 @@ jobs:
         with:
           version: v3.8.1
 
-      #- name: Add dependency chart repos
-        #run: |
-            #git config user.name "$github_actor"
-            #helm package 12-helm/wcg --app-version ${{ github.sha }} --version ${{ github.sha }} .
-            #helm repo index --url https://denqe.github.io/devops-hometasks/
-            #git add .
-            #git commit -m "Update Helm repository with new package"
-            #git push origin master
-            
-      - uses: actions/checkout@v2
-        with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
-          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
-      - name: Create local changes
+      - name: Add dependency chart repos
         run: |
-          helm package 12-helm/wcg --app-version ${{ github.sha }} --version ${{ github.sha }} .
-          helm repo index --url https://denqe.github.io/devops-hometasks/
-      - name: Commit files
-        run: |
-          git config --local user.email "montade@mail.ru"
-          git config --local user.name "denqe"
-          git commit -a -m "Add changes"
-      - name: Push changes
-        uses: denqe/devops-hometasks@master
-        with:
-          github_token: ${{ secrets.ACTION_TOKEN }}
-          branch: ${{ master }}
+            git config user.name "$github_actor"
+            helm package 12-helm/wcg --app-version ${{ github.sha }} --version ${{ github.sha }} .
+            helm repo index --url https://Denqe.github.io/devops-hometasks/
+            git add .
+            git commit -m "Update Helm repository with new package"
+            git push origin master
             
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
