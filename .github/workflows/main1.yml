@@ -44,9 +44,9 @@ jobs:
           repository_owner=${{ github.repository_owner }}
           repository_owner_lowercase=$(echo "$repository_owner" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} \
-          -t ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }} \
+          -t ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.steps.bump.outputs.tag }} \
           -f ./07-docker/Dockerfile.multi .
-          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
+          docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ needs.steps.bump.outputs.tag }}
           docker push ghcr.io/${repository_owner_lowercase}/wcg:${{ github.sha }}
         
   lint-test:
@@ -112,7 +112,7 @@ jobs:
       - name: Add dependency chart repos
         run: |
             git config user.name "$github_actor"
-            helm package 12-helm/wcg --app-version ${{ github.sha }} --version ${{ github.sha }} .
+            helm package 12-helm/wcg --app-version ${{ needs.steps.bump.outputs.tag }} --version ${{ needs.steps.bump.outputs.tag }} .
             helm repo index --url https://Denqe.github.io/devops-hometasks/
             git add .
             git commit -m "Update Helm repository with new package"
