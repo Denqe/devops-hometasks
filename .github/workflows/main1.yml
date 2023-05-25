@@ -17,7 +17,7 @@ jobs:
     - name: Bump version and push tag
       uses: anothrNick/github-tag-action@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_ACTION }}
+        GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
         REPO_OWNER: ${{ github.repository_owner }}
     
     - name: version-tag
@@ -25,7 +25,7 @@ jobs:
       uses: anothrNick/github-tag-action@master # if we use 1 there is a too-be-fixed bug https://github.com/anothrNick/github-tag-action/actions/runs/3139501775/jobs/5099976842#step:1:35 as alternative we could use v1
       env:
           VERBOSE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ACTION }}
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
     outputs: 
         tag: ${{ steps.tag.outputs.tag }}
       
